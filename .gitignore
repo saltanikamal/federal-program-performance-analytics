@@ -1,0 +1,44 @@
+# Environment variables and secrets
+.env
+
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Test cache
+.pytest_cache/
+
+# macOS files
+.DS_Store
+
+# Additional environment files
+.env.*
+!.env.example
+
+# Python environments
+.venv/
+
+# IDE and editor settings
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Operating system files
+.DS_Store
+
+# Local AI tool configuration
+.agents/
+.claude/
+
+# Temporary dashboard files
+dashboards/app.py
+dashboards/spending_dashboard_backup.py
