@@ -1,39 +1,40 @@
 # Environment variables and secrets
 .env
+.env.*
+!.env.example
 
-# Python virtual environment
+# Python virtual environments
 venv/
+.venv/
+env/
 
 # Python cache files
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Test cache
+# Test cache and coverage
 .pytest_cache/
+.coverage
+htmlcov/
+
+# Python type-checking and linting caches
+.mypy_cache/
+.ruff_cache/
 
 # macOS files
 .DS_Store
 
-# Additional environment files
-.env.*
-!.env.example
+# Jupyter checkpoints
+.ipynb_checkpoints/
 
-# Python environments
-.venv/
-
-# IDE and editor settings
+# IDE settings
 .vscode/
 .idea/
 
 # Logs and temporary files
 *.log
 *.tmp
-
-# Jupyter checkpoints
-.ipynb_checkpoints/
-
-# Operating system files
-.DS_Store
 
 # Local AI tool configuration
 .agents/
@@ -42,3 +43,9 @@ __pycache__/
 # Temporary dashboard files
 dashboards/app.py
 dashboards/spending_dashboard_backup.py
+
+# Nested cloned repository
+federal-program-performance-analytics/
+
+# Raw Lockheed Martin transaction data
+data/raw/lockheed_award_transactions.json

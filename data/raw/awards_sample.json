@@ -31,8 +31,8 @@
     "internal_id": 295527116,
     "Award ID": "DENA0003525",
     "Recipient Name": "NATIONAL TECHNOLOGY & ENGINEERING SOLUTIONS OF SANDIA, LLC",
-    "Award Amount": 43460682794.89,
-    "Total Outlays": 27227349900.77,
+    "Award Amount": 44093914875.26,
+    "Total Outlays": 27720797189.94,
     "Awarding Agency": "Department of Energy",
     "Start Date": "2017-01-18",
     "End Date": "2027-04-30",
@@ -45,8 +45,8 @@
     "internal_id": 295476106,
     "Award ID": "DEAC0500OR22725",
     "Recipient Name": "UT-BATTELLE LLC",
-    "Award Amount": 42668569051.43,
-    "Total Outlays": 15219165243.21,
+    "Award Amount": 42970738616.89,
+    "Total Outlays": 15449824264.35,
     "Awarding Agency": "Department of Energy",
     "Start Date": "1999-10-15",
     "End Date": "2030-03-31",
@@ -59,8 +59,8 @@
     "internal_id": 295477233,
     "Award ID": "DEAC5207NA27344",
     "Recipient Name": "LAWRENCE LIVERMORE NATIONAL SECURITY, LLC",
-    "Award Amount": 41607031193.88,
-    "Total Outlays": 17719717071.97,
+    "Award Amount": 42157425910.2,
+    "Total Outlays": 18021815261.42,
     "Awarding Agency": "Department of Energy",
     "Start Date": "2007-05-09",
     "End Date": "2031-09-30",
@@ -68,6 +68,20 @@
     "awarding_agency_id": 930,
     "agency_slug": "department-of-energy",
     "generated_internal_id": "CONT_AWD_DEAC5207NA27344_8900_-NONE-_-NONE-"
+  },
+  {
+    "internal_id": 292027610,
+    "Award ID": "89233218CNA000001",
+    "Recipient Name": "TRIAD NATIONAL SECURITY, LLC",
+    "Award Amount": 36289094015.26,
+    "Total Outlays": 26428418044.95,
+    "Awarding Agency": "Department of Energy",
+    "Start Date": "2018-06-08",
+    "End Date": "2028-10-31",
+    "Description": "IGF::CL::IGF COMPETITION FOR MANAGEMENT AND OPERATION OF LOS ALAMOS NATIONAL LABORATORY",
+    "awarding_agency_id": 930,
+    "agency_slug": "department-of-energy",
+    "generated_internal_id": "CONT_AWD_89233218CNA000001_8900_-NONE-_-NONE-"
   },
   {
     "internal_id": 309506838,
@@ -84,20 +98,6 @@
     "generated_internal_id": "CONT_AWD_N0002417C2100_9700_-NONE-_-NONE-"
   },
   {
-    "internal_id": 292027610,
-    "Award ID": "89233218CNA000001",
-    "Recipient Name": "TRIAD NATIONAL SECURITY, LLC",
-    "Award Amount": 35413596301.77,
-    "Total Outlays": 25919724127.01,
-    "Awarding Agency": "Department of Energy",
-    "Start Date": "2018-06-08",
-    "End Date": "2028-10-31",
-    "Description": "IGF::CL::IGF COMPETITION FOR MANAGEMENT AND OPERATION OF LOS ALAMOS NATIONAL LABORATORY",
-    "awarding_agency_id": 930,
-    "agency_slug": "department-of-energy",
-    "generated_internal_id": "CONT_AWD_89233218CNA000001_8900_-NONE-_-NONE-"
-  },
-  {
     "internal_id": 295476983,
     "Award ID": "DEAC3243AL00036",
     "Recipient Name": "REGENTS OF THE UNIVERSITY OF CALIFORNIA, THE",
@@ -112,6 +112,20 @@
     "generated_internal_id": "CONT_AWD_DEAC3243AL00036_8900_-NONE-_-NONE-"
   },
   {
+    "internal_id": 295526820,
+    "Award ID": "DENA0001942",
+    "Recipient Name": "CONSOLIDATED NUCLEAR SECURITY, LLC",
+    "Award Amount": 35151184369.83,
+    "Total Outlays": 18903781065.15,
+    "Awarding Agency": "Department of Energy",
+    "Start Date": "2013-01-08",
+    "End Date": "2027-09-30",
+    "Description": "IGF::CL,CT::IGF MANAGEMENT AND OPERATING CONTRACT FOR Y-12 NATIONAL SECURITY COMPLEX, PANTEX PLANT, WITH AN OPTION FOR SAVANNAH RIVER TRITIUM OPERATIONS",
+    "awarding_agency_id": 930,
+    "agency_slug": "department-of-energy",
+    "generated_internal_id": "CONT_AWD_DENA0001942_8900_-NONE-_-NONE-"
+  },
+  {
     "internal_id": 309494502,
     "Award ID": "N0001917C0001",
     "Recipient Name": "LOCKHEED MARTIN CORPORATION",
@@ -124,19 +138,5 @@
     "awarding_agency_id": 1173,
     "agency_slug": "department-of-defense",
     "generated_internal_id": "CONT_AWD_N0001917C0001_9700_-NONE-_-NONE-"
-  },
-  {
-    "internal_id": 295526820,
-    "Award ID": "DENA0001942",
-    "Recipient Name": "CONSOLIDATED NUCLEAR SECURITY, LLC",
-    "Award Amount": 34661763245.24,
-    "Total Outlays": 18671780536.91,
-    "Awarding Agency": "Department of Energy",
-    "Start Date": "2013-01-08",
-    "End Date": "2027-09-30",
-    "Description": "IGF::CL,CT::IGF MANAGEMENT AND OPERATING CONTRACT FOR Y-12 NATIONAL SECURITY COMPLEX, PANTEX PLANT, WITH AN OPTION FOR SAVANNAH RIVER TRITIUM OPERATIONS",
-    "awarding_agency_id": 930,
-    "agency_slug": "department-of-energy",
-    "generated_internal_id": "CONT_AWD_DENA0001942_8900_-NONE-_-NONE-"
   }
 ]

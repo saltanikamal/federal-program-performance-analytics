@@ -1,5 +1,12 @@
+import warnings
+
+import numpy as np
 import pandas as pd
 
+
+# ==========================================================
+# REQUIRED COLUMNS
+# ==========================================================
 
 REQUIRED_COLUMNS = [
     "internal_id",
@@ -9,187 +16,225 @@ REQUIRED_COLUMNS = [
     "generated_internal_id",
 ]
 
-OPTIONAL_COLUMNS = [
-    "awarding_agency",
-    "start_date",
-    "end_date",
-    "description",
-]
 
+# ==========================================================
+# MAIN VALIDATION FUNCTION
+# ==========================================================
 
-def validate_awards(df: pd.DataFrame) -> pd.DataFrame:
+def validate_awards(df):
     """
-    Validate federal award records.
+    Validate cleaned federal award records.
 
-    Checks:
-    1. The DataFrame is not empty.
-    2. Required columns exist.
-    3. Required fields are not missing.
-    4. Internal IDs are valid and unique.
-    5. Generated internal IDs are present and unique.
-    6. Award amounts are numeric and non-negative.
-    7. Optional date fields contain valid dates when supplied.
-    8. Duplicate award IDs are reported as a warning.
+    Validation checks:
 
-    Returns a validated copy of the DataFrame.
-    Raises ValueError when critical checks fail.
+    1. Input must be a pandas DataFrame.
+    2. DataFrame cannot be empty.
+    3. Required columns must exist.
+    4. Required fields cannot contain missing values.
+    5. Required text fields cannot be empty.
+    6. Internal IDs must be positive integers.
+    7. Internal IDs must be unique.
+    8. Award amounts must be numeric and finite.
+    9. Award amounts cannot be negative.
+    10. Duplicate award IDs generate warnings.
+    11. Optional total outlays must be numeric and finite.
+
+    Returns:
+        pd.DataFrame: Validated copy of the input DataFrame.
     """
 
-    # CHECK 1: Ensure records exist.
-    if df.empty:
-        raise ValueError(
-            "Cannot validate an empty DataFrame."
+    # ------------------------------------------------------
+    # 1. Validate input type
+    # ------------------------------------------------------
+
+    if not isinstance(df, pd.DataFrame):
+
+        raise TypeError(
+            "Input must be a pandas DataFrame."
         )
 
-    # CHECK 2: Ensure required columns exist.
+    # ------------------------------------------------------
+    # 2. Check empty DataFrame
+    # ------------------------------------------------------
+
+    if df.empty:
+
+        raise ValueError(
+            "Award DataFrame cannot be empty."
+        )
+
+    # Work on a copy to protect original data.
+    validated_df = df.copy(deep=True)
+
+    # ------------------------------------------------------
+    # 3. Check required columns
+    # ------------------------------------------------------
+
     missing_columns = [
         column
         for column in REQUIRED_COLUMNS
-        if column not in df.columns
+        if column not in validated_df.columns
     ]
 
     if missing_columns:
+
         raise ValueError(
             f"Missing required columns: {missing_columns}"
         )
 
-    validated_df = df.copy()
+    # ------------------------------------------------------
+    # 4. Check missing and empty values
+    # ------------------------------------------------------
 
-    # Add optional columns if they are absent.
-    for column in OPTIONAL_COLUMNS:
-        if column not in validated_df.columns:
-            validated_df[column] = pd.NA
+    for column in REQUIRED_COLUMNS:
 
-    # CHECK 3: Clean text fields.
-    text_fields = [
-        "award_id",
-        "recipient_name",
-        "generated_internal_id",
-        "awarding_agency",
-        "description",
-    ]
+        if validated_df[column].isna().any():
 
-    for column in text_fields:
-        validated_df[column] = (
+            raise ValueError(
+                f"{column} contains missing values."
+            )
+
+        empty_values = (
             validated_df[column]
             .astype("string")
             .str.strip()
-            .replace("", pd.NA)
+            .eq("")
         )
 
-    # CHECK 4: Validate internal IDs.
+        if empty_values.any():
+
+            raise ValueError(
+                f"{column} contains empty values."
+            )
+
+    # ------------------------------------------------------
+    # 5. Validate internal IDs
+    # ------------------------------------------------------
+
     internal_ids = pd.to_numeric(
         validated_df["internal_id"],
-        errors="coerce",
+        errors="coerce"
     )
 
-    invalid_internal_ids = (
-        internal_ids.isna()
-        | (internal_ids % 1 != 0)
-    )
+    if internal_ids.isna().any():
 
-    if invalid_internal_ids.any():
         raise ValueError(
-            "Validation failed: internal_id must contain "
-            "valid integer identifiers."
+            "internal_id must contain valid integer identifiers."
         )
 
-    if internal_ids.duplicated().any():
+    if not np.isfinite(
+        internal_ids.to_numpy()
+    ).all():
+
         raise ValueError(
-            "Validation failed: duplicate internal_id values."
+            "internal_id must contain finite numeric values."
+        )
+
+    if not (internal_ids % 1 == 0).all():
+
+        raise ValueError(
+            "internal_id must contain integer identifiers."
+        )
+
+    if (internal_ids <= 0).any():
+
+        raise ValueError(
+            "internal_id must contain positive integer identifiers."
+        )
+
+    # Check uniqueness.
+    if internal_ids.duplicated().any():
+
+        raise ValueError(
+            "internal_id contains duplicate identifiers."
         )
 
     validated_df["internal_id"] = internal_ids.astype("int64")
 
-    # CHECK 5: Validate generated identifiers.
-    generated_ids = validated_df["generated_internal_id"]
+    # ------------------------------------------------------
+    # 6. Validate award amounts
+    # ------------------------------------------------------
 
-    if generated_ids.isna().any():
-        raise ValueError(
-            "Validation failed: generated_internal_id "
-            "cannot be missing."
-        )
-
-    if generated_ids.duplicated().any():
-        raise ValueError(
-            "Validation failed: duplicate generated_internal_id "
-            "values."
-        )
-
-    # CHECK 6: Validate award amounts.
-    validated_df["award_amount"] = pd.to_numeric(
+    award_amounts = pd.to_numeric(
         validated_df["award_amount"],
-        errors="coerce",
+        errors="coerce"
     )
 
-    invalid_amounts = (
-        validated_df["award_amount"].isna()
-        | (validated_df["award_amount"] < 0)
-    )
-
-    if invalid_amounts.any():
-        raise ValueError(
-            "Validation failed: award_amount must be numeric "
-            "and non-negative."
-        )
-
-    # CHECK 7: Validate required text fields.
-    required_text_fields = [
-        "award_id",
-        "recipient_name",
-        "generated_internal_id",
-    ]
-
-    missing_required = (
-        validated_df[required_text_fields]
-        .isna()
-        .any(axis=1)
-    )
-
-    if missing_required.any():
-        invalid_count = int(missing_required.sum())
+    if award_amounts.isna().any():
 
         raise ValueError(
-            f"Validation failed: {invalid_count} record(s) "
-            "have missing required fields."
+            "award_amount must contain valid numeric values."
         )
 
-    # CHECK 8: Validate dates when present.
-    for column in ["start_date", "end_date"]:
-        original_values = validated_df[column]
+    if not np.isfinite(
+        award_amounts.to_numpy()
+    ).all():
 
-        parsed_dates = pd.to_datetime(
-            original_values,
-            errors="coerce",
+        raise ValueError(
+            "award_amount must contain finite numeric values."
         )
 
-        invalid_dates = (
-            original_values.notna()
-            & parsed_dates.isna()
+    if (award_amounts < 0).any():
+
+        raise ValueError(
+            "award_amount cannot contain negative values."
         )
 
-        if invalid_dates.any():
+    validated_df["award_amount"] = award_amounts
+
+    # ------------------------------------------------------
+    # 7. Check duplicate award IDs
+    # ------------------------------------------------------
+
+    if validated_df["award_id"].duplicated().any():
+
+        warnings.warn(
+            "Duplicate award_id values detected.",
+            UserWarning
+        )
+
+    # ------------------------------------------------------
+    # 8. Validate optional total outlays
+    # ------------------------------------------------------
+
+    if "total_outlays" in validated_df.columns:
+
+        outlays = pd.to_numeric(
+            validated_df["total_outlays"],
+            errors="coerce"
+        )
+
+        # Identify invalid values while allowing missing values.
+        invalid_outlays = (
+            validated_df["total_outlays"].notna()
+            & outlays.isna()
+        )
+
+        if invalid_outlays.any():
+
             raise ValueError(
-                f"Validation failed: {column} contains "
-                "invalid date values."
+                "total_outlays must contain numeric values."
             )
 
-        validated_df[column] = parsed_dates
+        # Reject infinity and negative infinity.
+        if not np.isfinite(
+            outlays.dropna().to_numpy()
+        ).all():
 
-    # Warn about duplicate award IDs without stopping the pipeline.
-    duplicate_awards = validated_df["award_id"].duplicated(
-        keep=False
-    )
+            raise ValueError(
+                "total_outlays must contain finite numeric values."
+            )
 
-    duplicate_award_count = int(
-        validated_df.loc[
-            duplicate_awards, "award_id"
-        ].nunique()
-    )
+        validated_df["total_outlays"] = outlays
+
+    # ------------------------------------------------------
+    # 9. Validation summary
+    # ------------------------------------------------------
+
+    print("Award validation successful.")
 
     print(
-        f"Validation passed: {len(validated_df)} records "
-        "passed critical checks."
+        f"Total records validated: {len(validated_df)}"
     )
 
     print(
@@ -198,17 +243,17 @@ def validate_awards(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     print(
+        f"Unique award IDs: "
+        f"{validated_df['award_id'].nunique()}"
+    )
+
+    print(
         f"Unique generated internal IDs: "
         f"{validated_df['generated_internal_id'].nunique()}"
     )
 
-    if duplicate_award_count:
-        print(
-            "WARNING: "
-            f"{duplicate_award_count} award ID value(s) "
-            "appear in multiple records."
-        )
-    else:
-        print("No duplicate award IDs detected.")
+    # ------------------------------------------------------
+    # 10. Return validated DataFrame
+    # ------------------------------------------------------
 
     return validated_df

@@ -1,0 +1,21 @@
+ranking_category,rank,year,gross_positive,gross_negative,net_obligation_change,transaction_count
+Gross Positive Obligations,1,2016,3668030403.20,-1494931.80,3666535471.40,36
+Gross Positive Obligations,2,2012,3090067388.76,-16413.15,3090050975.61,35
+Gross Positive Obligations,3,2005,2943593906.02,0.00,2943593906.02,17
+Gross Positive Obligations,4,2009,2875193325.72,0.00,2875193325.72,42
+Gross Positive Obligations,5,2014,2764319030.00,-24170.05,2764294859.95,36
+Gross Negative Obligations,1,2017,516070700.39,-1505793091.56,-989722391.17,21
+Gross Negative Obligations,2,2021,0.00,-9249680.49,-9249680.49,2
+Gross Negative Obligations,3,2024,0.00,-6500000.00,-6500000.00,3
+Gross Negative Obligations,4,2023,0.00,-4000000.00,-4000000.00,1
+Gross Negative Obligations,5,2018,0.00,-3882980.56,-3882980.56,2
+Net Obligation Increases,1,2016,3668030403.20,-1494931.80,3666535471.40,36
+Net Obligation Increases,2,2012,3090067388.76,-16413.15,3090050975.61,35
+Net Obligation Increases,3,2005,2943593906.02,0.00,2943593906.02,17
+Net Obligation Increases,4,2009,2875193325.72,0.00,2875193325.72,42
+Net Obligation Increases,5,2014,2764319030.00,-24170.05,2764294859.95,36
+Net Obligation Reductions,1,2017,516070700.39,-1505793091.56,-989722391.17,21
+Net Obligation Reductions,2,2021,0.00,-9249680.49,-9249680.49,2
+Net Obligation Reductions,3,2024,0.00,-6500000.00,-6500000.00,3
+Net Obligation Reductions,4,2023,0.00,-4000000.00,-4000000.00,1
+Net Obligation Reductions,5,2018,0.00,-3882980.56,-3882980.56,2
