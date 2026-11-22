@@ -597,8 +597,11 @@ requiring users to run individual SQL queries or analysis scripts.
 
 ## 12. Visualizations and Reports
 
-The project includes static charts and interactive reports designed to
-communicate spending patterns and historical contract changes.
+The project generates static visualizations, interactive HTML reports,
+and CSV analytical outputs.
+
+These reports provide additional ways to explore federal award
+distributions and historical contract obligation activity.
 
 ### Federal Award Analysis
 
@@ -610,68 +613,42 @@ communicate spending patterns and historical contract changes.
 
 ![Total Award Value by Agency](reports/total_award_value_by_agency.png)
 
-### Historical Contract Analysis
+### Interactive Historical Analysis Reports
 
-#### Annual Obligation Analysis
+The repository includes four interactive HTML reports generated
+from historical contract transaction data.
 
-![Annual Obligation Analysis](reports/annual_obligation_analysis.png)
+These reports can be downloaded and opened locally in a web browser.
 
-#### 2017 Monthly Obligation Analysis
+| Report | Description |
+|---|---|
+| [Annual Positive and Negative Obligations](reports/annual_positive_negative_obligations.html) | Compares annual gross positive and negative obligations. |
+| [Gross Positive Obligations](reports/lockheed_gross_positive_obligations.html) | Examines annual positive obligation activity. |
+| [Gross Negative Obligations](reports/lockheed_gross_negative_obligations.html) | Examines annual negative obligation activity and reductions. |
+| [Net Obligation Changes](reports/lockheed_net_obligation_changes.html) | Examines annual net changes in contract obligations. |
 
-![2017 Monthly Obligations](reports/2017_monthly_obligations.png)
+### Analytical Data Exports
 
-#### 2017 Cumulative Obligations
+The project also generates CSV files containing analytical results:
 
-![2017 Cumulative Obligations](reports/2017_cumulative_obligations.png)
+- `reports/lockheed_annual_obligation_analysis.csv`
+- `reports/lockheed_monthly_obligation_analysis.csv`
+- `reports/lockheed_historical_rankings.csv`
 
-#### Monthly Positive and Negative Obligations
+These outputs support further analysis and independent examination
+of historical contract financial activity.
 
-![Monthly Positive and Negative
-Obligations](reports/monthly_positive_negative_2017.png)
-
-#### Historical Contract Financial Overview
-
-![Historical Financial
-Overview](reports/lockheed_historical_financial_overview.png)
-
-#### Recent Financial Overview
-
-![Recent Financial
-Overview](reports/lockheed_recent_financial_overview.png)
-
-#### Historical Cumulative Obligations
-
-![Historical Cumulative
-Obligations](reports/lockheed_cumulative_obligations_history.png)
-
-#### Gross Positive Obligations
-
-![Gross Positive
-Obligations](reports/lockheed_gross_positive_obligations.png)
-
-#### Gross Negative Obligations
-
-![Gross Negative
-Obligations](reports/lockheed_gross_negative_obligations.png)
-
-#### Net Obligation Changes
-
-![Net Obligation Changes](reports/lockheed_net_obligation_changes.png)
-
-The repository also includes interactive HTML reports and CSV outputs
-for additional analysis.
-
-These visualizations help communicate financial trends, identify unusual
-changes, and support further investigation.
-
+The visualizations and reports complement the analytical findings
+presented in Sections 8, 9, and 10.
 ------------------------------------------------------------------------
 
 ## 13. Project Structure
 
-The following structure reflects the main application, analysis, test,
-dashboard, and report files.
+The following structure reflects the files tracked in the GitHub
+repository, including the application, data pipeline, analytical
+modules, automated tests, dashboard, and generated reports.
 
-``` text
+```text
 federal_spending_analytics/
 │
 ├── dashboards/
@@ -680,12 +657,13 @@ federal_spending_analytics/
 ├── data/
 │   ├── raw/
 │   │   ├── awards_sample.json
-│   │   └── lockheed_award_transactions.json  # Local source data; not committed
+│   │   └── .gitkeep
 │   │
 │   └── processed/
 │       ├── awards_sample.csv
 │       ├── agency_spending_summary.csv
-│       └── recipient_spending_summary.csv
+│       ├── recipient_spending_summary.csv
+│       └── .gitkeep
 │
 ├── reports/
 │   ├── 2017_cumulative_obligations.png
@@ -714,6 +692,8 @@ federal_spending_analytics/
 │       └── inspect_electric_boat.py
 │
 ├── src/
+│   ├── __init__.py
+│   │
 │   ├── analysis/
 │   │   ├── lockheed_annual_analysis.py
 │   │   ├── lockheed_annual_obligations_chart.py
@@ -722,43 +702,48 @@ federal_spending_analytics/
 │   │   └── lockheed_monthly_analysis.py
 │   │
 │   ├── analytics/
+│   │   ├── __init__.py
 │   │   ├── agency_analysis.py
 │   │   └── visualize_spending.py
 │   │
 │   ├── database/
+│   │   ├── __init__.py
 │   │   ├── load_awards.py
 │   │   └── test_connection.py
 │   │
 │   ├── ingestion/
+│   │   ├── __init__.py
 │   │   └── usa_spending_api.py
 │   │
 │   ├── run/
+│   │   ├── __init__.py
 │   │   └── pipeline.py
 │   │
 │   ├── transformation/
+│   │   ├── __init__.py
 │   │   ├── clean_awards.py
 │   │   └── validate_awards.py
 │   │
 │   └── main.py
 │
 ├── tests/
+│   ├── __init__.py
 │   ├── test_clean_awards.py
 │   ├── test_load_awards.py
 │   ├── test_usa_spending_api.py
 │   └── test_validate_awards.py
 │
-├── .env                 # Local environment variables; do not commit
+├── .env.example
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
-**Note:** The `data/processed/` filenames above describe the expected
-project outputs documented for this workflow. The exact contents of that
-directory may vary depending on which pipeline and analysis steps have
-been run. Python cache folders such as `__pycache__/` are intentionally
-omitted.
-
+**Note:** This structure reflects the files tracked in the GitHub
+repository. Local environment files (.env), virtual environments,
+Python cache directories, and the raw Lockheed Martin transaction
+dataset are excluded through .gitignore. The processed data and
+analysis reports shown above are committed project outputs.
 ------------------------------------------------------------------------
 
 ## 14. Installation and Environment Setup
