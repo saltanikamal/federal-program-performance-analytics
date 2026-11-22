@@ -37,7 +37,7 @@ DATABASE_URL = (
 # 2. DATABASE CONNECTION TEST
 # --------------------------------------------------
 
-def test_connection():
+def check_database_connection():
     """Test the PostgreSQL database connection."""
 
     engine = create_engine(DATABASE_URL)
@@ -63,4 +63,4 @@ def test_connection():
 # --------------------------------------------------
 
 if __name__ == "__main__":
-    test_connection()
+    check_database_connection()

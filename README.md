@@ -689,6 +689,7 @@ federal_spending_analytics/
 ├── scripts/
 │   └── diagnostics/
 │       ├── check_award_outlays.py
+│       ├── check_database_connection.py
 │       └── inspect_electric_boat.py
 │
 ├── src/
@@ -708,8 +709,7 @@ federal_spending_analytics/
 │   │
 │   ├── database/
 │   │   ├── __init__.py
-│   │   ├── load_awards.py
-│   │   └── test_connection.py
+│   │   └── load_awards.py
 │   │
 │   ├── ingestion/
 │   │   ├── __init__.py
