@@ -1,474 +1,610 @@
 # Federal Program Performance & Spending Analytics Platform
 
-An independent data analytics portfolio project that collects, transforms, validates, stores, and analyzes federal spending data from the USAspending.gov API.
+An independent data analytics project that combines federal spending
+data ingestion, data transformation, validation, PostgreSQL storage, SQL
+analysis, historical contract analysis, and interactive visualization.
 
-The platform demonstrates an end-to-end data analytics workflow using Python, SQL, PostgreSQL, data validation, exploratory analysis, and interactive dashboards. It also includes a historical investigation of federal contract obligations and deobligations associated with a Department of Energy contract awarded to Lockheed Martin Corporation.
+The project uses data from the **USAspending.gov API** to examine
+federal award information and analyze historical contract obligation
+changes. It demonstrates an end-to-end data workflow using Python, SQL,
+PostgreSQL, Matplotlib, Plotly, and Streamlit.
 
----
+------------------------------------------------------------------------
 
 ## 1. Project Overview
 
-Federal spending data provides insight into how government agencies distribute funding, manage contracts, and allocate financial resources.
+The Federal Program Performance & Spending Analytics Platform was
+developed as an independent portfolio project to explore how federal
+spending data can be collected, organized, validated, analyzed, and
+presented.
 
-This project uses publicly available federal award data to examine:
+The project has two primary analytical components:
 
-- Federal award distribution across government agencies.
-- Total award values and recipient concentration.
-- Federal contract obligation trends.
-- Positive and negative obligation adjustments.
-- Historical changes in contract funding.
-- Significant contract modifications and deobligations.
+1.  **Federal Award Spending Analysis**\
+    Collects federal award data from the USAspending.gov API, transforms
+    and validates the records, stores the results in PostgreSQL, and
+    analyzes award values by agency and recipient.
 
-The project combines data engineering and analytical techniques to transform raw government spending records into structured datasets, SQL-based analysis, and visual reports.
+2.  **Historical Contract Obligation Analysis**\
+    Examines historical transaction records for a selected Department of
+    Energy contract involving Lockheed Martin Corporation. The analysis
+    evaluates annual and monthly obligation changes, including positive
+    obligations, negative obligations, and cumulative contract values.
+
+The project also includes a Streamlit dashboard, static visualizations,
+interactive HTML reports, CSV exports, and automated tests.
 
 ### Project Objectives
 
-1. Retrieve federal award information through the USAspending.gov API.
-2. Build a repeatable data ingestion and transformation pipeline.
-3. Clean and validate raw federal spending records.
-4. Store structured award data in PostgreSQL.
-5. Perform SQL-based spending analysis.
-6. Develop an interactive Streamlit dashboard.
-7. Investigate historical contract obligations and deobligations.
-8. Communicate findings through visualizations and analytical reports.
+-   Retrieve federal award information through a public government API.
+-   Build a repeatable data ingestion and transformation workflow.
+-   Apply data validation and quality checks.
+-   Store structured federal award data in PostgreSQL.
+-   Use SQL and Python to analyze agency and recipient spending.
+-   Examine historical contract obligations and financial changes.
+-   Create visualizations that communicate financial trends.
+-   Develop an interactive dashboard for exploring analytical results.
+-   Apply automated testing to important data pipeline components.
 
----
+------------------------------------------------------------------------
 
 ## 2. Technology Stack
 
-| Category | Technologies |
-|---|---|
-| Programming | Python |
-| Data Analysis | pandas, NumPy |
-| Data Visualization | Matplotlib, Plotly |
-| Database | PostgreSQL |
-| Query Language | SQL |
-| Dashboard | Streamlit |
-| API Integration | USAspending.gov REST API, Requests |
-| Data Validation | Python, pytest |
-| Data Processing | JSON, CSV |
-| Environment Management | Python virtual environment, python-dotenv |
-| Version Control | Git, GitHub |
+  Category                 Technologies
+  ------------------------ -------------------------------------------
+  Programming Language     Python
+  Data Manipulation        pandas, NumPy
+  Database                 PostgreSQL
+  SQL                      PostgreSQL SQL
+  API Integration          USAspending.gov API, requests
+  Data Validation          Python, Pydantic
+  Data Visualization       Matplotlib, Plotly
+  Interactive Dashboard    Streamlit
+  Testing                  pytest
+  Database Connectivity    SQLAlchemy, psycopg2
+  Environment Management   Python virtual environment, python-dotenv
+  Version Control          Git, GitHub
 
----
+------------------------------------------------------------------------
 
-## 3. Data Source
+## 3. Data Source and API Integration
 
-### USAspending.gov API
+The federal award dataset is retrieved from the public USAspending.gov
+API.
 
-The project retrieves publicly available federal award information from the USAspending.gov REST API.
+-   **Data source:** [USAspending.gov](https://www.usaspending.gov/)
+-   **API documentation:** [USAspending
+    API](https://api.usaspending.gov/)
 
-API endpoint:
+The ingestion component is located at:
 
-https://api.usaspending.gov/api/v2/search/spending_by_award/
+`src/ingestion/usa_spending_api.py`
 
-The API provides information about federal awards, including:
+The project uses the following API endpoint:
 
-- Award identification numbers.
-- Recipient names.
-- Award amounts.
-- Awarding agencies.
-- Award descriptions.
-- Award start and end dates.
+`/api/v2/search/spending_by_award/`
 
-The award search uses four award type codes:
+The API request retrieves a sample of federal award records using
+award-type filters and award amount sorting.
 
-| Award Type Code | Category |
-|---|---|
-| A | Procurement Contract |
-| B | Procurement Contract |
-| C | Procurement Contract |
-| D | Procurement Contract |
+### API Request Configuration
 
-The API response is saved as raw JSON before processing.
+The request configuration includes:
 
-### Data Workflow
+-   Award type codes: A, B, C, and D.
+-   Funding field: Total Outlays.
+-   Result limit: 10 records.
+-   Sorting: Award amount, descending.
+-   Request timeout: 30 seconds.
 
-```text
+The API response is saved as a raw JSON file before transformation.
+
+### Data Retrieval Workflow
+
+1.  Send a request to the USAspending.gov API.
+2.  Retrieve the federal award records.
+3.  Save the raw API response.
+4.  Transform the records into a structured dataset.
+5.  Validate the transformed data.
+6.  Load the validated records into PostgreSQL.
+7.  Perform SQL and Python analysis.
+8.  Present the results through visualizations and a dashboard.
+
+------------------------------------------------------------------------
+
+## 4. ETL Pipeline
+
+The project follows an ETL workflow: Extract, Transform, and Load.
+
+### Extract
+
+The ingestion module retrieves award information from the
+USAspending.gov API.
+
+**File:** `src/ingestion/usa_spending_api.py`
+
+The raw API response is saved in:
+
+`data/raw/awards_sample.json`
+
+### Transform
+
+The transformation module converts the API response into a structured
+dataset.
+
+**File:** `src/transformation/clean_awards.py`
+
+The cleaning process prepares the records for analysis and database
+storage.
+
+The transformed dataset includes fields such as:
+
+-   `internal_id`
+-   `award_id`
+-   `recipient_name`
+-   `award_amount`
+-   `generated_internal_id`
+-   `awarding_agency`
+-   `start_date`
+-   `end_date`
+-   `description`
+
+### Validate
+
+The validation module checks the transformed records before database
+loading.
+
+**File:** `src/transformation/validate_awards.py`
+
+The validation process checks required fields and applies data quality
+rules, including:
+
+-   Required field validation.
+-   Unique internal identifiers.
+-   Duplicate award ID checks.
+-   Nonnegative award amount checks.
+-   Basic data consistency.
+
+### Load
+
+The database module loads validated award records into PostgreSQL.
+
+**File:** `src/database/load_awards.py`
+
+The database loading process uses an upsert approach based on the
+internal identifier to help prevent duplicate records when records are
+loaded again.
+
+### ETL Summary
+
+``` text
 USAspending.gov API
         |
         v
-    Raw JSON
+Data Ingestion
         |
         v
-  Data Cleaning
+Raw JSON Data
         |
         v
- Data Validation
+Data Cleaning
         |
         v
- Processed CSV
+Data Validation
         |
         v
-   PostgreSQL
+PostgreSQL Database
         |
         v
-   SQL Analysis
+SQL and Python Analysis
         |
         v
-    Dashboard
+Visualizations and Dashboard
 ```
 
----
+------------------------------------------------------------------------
 
-## 4. Data Engineering Pipeline
+## 5. PostgreSQL Database Architecture
 
-The project implements an end-to-end data processing workflow.
+The project uses PostgreSQL to store and query structured federal award
+information.
 
-### Step 1: Data Ingestion
+-   **Database:** `federal_spending`
+-   **Primary table:** `awards`
 
-Python retrieves federal award records through the USAspending.gov REST API.
+### Awards Table
 
-The ingestion process:
+The `awards` table contains the following fields:
 
-- Sends API requests.
-- Retrieves federal award information.
-- Handles request timeouts.
-- Saves the original API response as JSON.
-- Preserves raw data for subsequent processing.
+  Column                    Data Type       Description
+  ------------------------- --------------- -------------------------------
+  `internal_id`             BIGINT          Primary identifier
+  `award_id`                TEXT            Federal award identifier
+  `recipient_name`          TEXT            Award recipient
+  `award_amount`            NUMERIC(15,2)   Award amount
+  `generated_internal_id`   TEXT            Generated internal identifier
+  `awarding_agency`         TEXT            Federal awarding agency
+  `start_date`              DATE            Award start date
+  `end_date`                DATE            Award end date
+  `description`             TEXT            Award description
 
-### Step 2: Data Cleaning
+The `internal_id` field is the primary key.
 
-The transformation process uses pandas to prepare the award dataset.
+### Database Analysis
 
-Cleaning operations include:
+The project uses SQL queries and database views to summarize award
+information.
 
-- Selecting relevant fields.
-- Standardizing column names.
-- Handling missing values.
-- Converting award amounts into numeric values.
-- Preparing dates for analysis.
-- Removing unnecessary fields.
+Examples of analytical questions include:
 
-### Step 3: Data Validation
+-   How many federal awards are stored in the database?
+-   How many unique award identifiers exist?
+-   What is the total award value?
+-   Which agencies have the highest award values?
+-   Which recipients have the largest awards?
+-   What percentage of the total award value is associated with each
+    agency?
 
-The validation process checks the quality and consistency of the processed dataset.
+Agency and recipient summaries are used to support the analytical and
+dashboard components.
 
-Validation includes:
-
-- Required field checks.
-- Missing value checks.
-- Duplicate award identification.
-- Unique internal identifier checks.
-- Nonnegative award amount checks.
-- Data consistency checks.
-
-Automated tests verify important pipeline functions.
-
-### Step 4: PostgreSQL Database
-
-Validated award records are loaded into PostgreSQL.
-
-**Database:** `federal_spending`
-
-**Main table:** `awards`
-
-| Column | Description |
-|---|---|
-| `internal_id` | Primary key for the award record |
-| `award_id` | Federal award identification number |
-| `recipient_name` | Award recipient |
-| `award_amount` | Total award amount |
-| `generated_internal_id` | Generated record identifier |
-| `awarding_agency` | Federal awarding agency |
-| `start_date` | Award start date |
-| `end_date` | Award end date |
-| `description` | Award description |
-
-The database uses an upsert process to manage existing records and avoid duplicate internal identifiers.
-
-### Step 5: SQL Analytics
-
-SQL queries are used to examine:
-
-- Total award counts.
-- Distinct award counts.
-- Total award values.
-- Average award values.
-- Spending distribution by agency.
-- Spending distribution by recipient.
-- Agency and recipient rankings.
-
-### Step 6: Dashboard Development
-
-An interactive Streamlit dashboard provides an accessible interface for exploring federal award information.
-
-Dashboard functionality includes:
-
-- Summary metrics.
-- Award-level information.
-- Agency-level analysis.
-- Recipient-level analysis.
-- Interactive filtering.
-- Data export to CSV.
-- Data quality information.
-- Spending visualizations.
-
----
-
-## 5. Federal Award Dataset Results
-
-The initial processed dataset contains 10 federal award records.
-
-### Dataset Summary
-
-| Metric | Result |
-|---|---:|
-| Total award records | 10 |
-| Distinct award IDs | 10 |
-| Total award value | $404,739,667,534.78 |
-| Average award value | $40,473,966,753.48 |
-| Largest individual award | $51,269,205,263.03 |
-
-### Data Quality Observations
-
-The processed dataset contains 10 distinct award records.
-
-The pipeline validates award identifiers, required fields, numeric award amounts, and record consistency before loading the data into PostgreSQL.
-
-**Important limitation:** This is a small analytical sample, not a comprehensive representation of all federal spending. The results describe the selected award records rather than total federal government expenditures.
-
----
+------------------------------------------------------------------------
 
 ## 6. Federal Award Spending Analysis
 
-The award analysis examines the distribution of federal contract values across agencies and recipients.
+The federal award analysis examines the sample of records retrieved from
+USAspending.gov.
 
-### Analytical Objectives
+The analysis focuses on award amounts, awarding agencies, and
+recipients.
 
-- Identify agencies with the largest award values.
-- Compare award counts across agencies.
-- Rank recipients by award value.
-- Examine the concentration of federal contract awards.
+### Key Analytical Measures
+
+-   Total number of awards.
+-   Number of distinct award identifiers.
+-   Total award value.
+-   Average award value.
+-   Largest award value.
+-   Award value by federal agency.
+-   Award value by recipient.
+
+### Sample Dataset Results
+
+The latest sample analysis produced the following results:
+
+  Metric                                Result
+  --------------------- ----------------------
+  Total Awards                              10
+  Distinct Award IDs                        10
+  Total Award Value       \$404,739,667,534.78
+  Average Award Value      \$40,473,966,753.48
+  Largest Award Value      \$51,269,205,263.03
+
+These figures describe the sample of records retrieved for this project.
+They should not be interpreted as total federal government spending.
 
 ### Agency-Level Analysis
 
-The project produces agency-level summaries containing:
+Agency-level analysis groups award records by awarding agency to compare
+the distribution of award values.
 
-- Number of awards.
-- Total award value.
-- Average award value.
-- Percentage of total award value.
+The analysis helps answer questions such as:
+
+-   Which agencies account for the largest award values in the sample?
+-   How is the sample award value distributed across agencies?
+-   What percentage of the sample total is associated with each agency?
 
 ### Recipient-Level Analysis
 
-Recipient-level analysis examines:
+Recipient analysis groups award records by recipient to identify
+organizations associated with the largest award values.
 
-- Total awards received.
-- Aggregate award values.
-- Recipient rankings.
-- Concentration of award values among recipients.
+This supports comparisons of award values across recipients.
 
-The results are stored in processed CSV files and used by the dashboard.
+### Related Files
 
----
+-   `src/analytics/agency_analysis.py`
+-   `src/analytics/visualize_spending.py`
 
-## 7. Lockheed Martin Contract Analysis
+------------------------------------------------------------------------
 
-### Historical Contract Investigation
+## 7. Historical Contract Obligation Analysis
 
-A second analytical component investigates historical obligation activity associated with a Department of Energy contract awarded to Lockheed Martin Corporation.
+The second analytical component examines historical transaction records
+associated with a selected Department of Energy contract involving
+Lockheed Martin Corporation.
 
-**Contract Award ID:** `DEAC0494AL85000`
+The transaction dataset is stored locally at:
 
-The analysis examines 594 historical contract transactions spanning:
+`data/raw/lockheed_award_transactions.json`
 
-**October 15, 1993 – July 7, 2026**
+This raw transaction file is not included in the public GitHub
+repository.
 
-The transaction dataset includes:
+The historical analysis uses the transaction records to examine changes
+in federal contract obligations over time.
 
-- Transaction identifiers.
-- Action dates.
-- Action type descriptions.
-- Modification numbers.
-- Federal action obligations.
-- Transaction descriptions.
+### Transaction Data
 
-The objective is to understand how the contract's financial obligations changed over time.
+The transaction records include fields such as:
 
-### Understanding Federal Obligations
+-   Transaction ID.
+-   Award ID.
+-   Action date.
+-   Action type description.
+-   Modification number.
+-   Transaction description.
+-   Federal action obligation.
 
-Federal contract obligations represent the government's legally binding financial commitments.
+The dataset contains 594 transaction records covering the period from
+October 15, 1993, through July 7, 2026.
 
-A positive obligation generally increases the amount committed to a contract.
+All 594 records were associated with the selected award identifier.
 
-A negative obligation generally represents a reduction or deobligation of previously recorded commitments. These adjustments can result from contract modifications, funding changes, administrative actions, or other contractual events.
+### Understanding Federal Contract Obligations
 
-**Obligations are not the same as actual payments or outlays.**
+A federal contract obligation represents the government's commitment of
+funds for a contract.
 
----
+A transaction can increase or decrease the cumulative obligated amount.
 
-## 8. Historical Obligation Analysis
+**Positive obligations**
 
-Annual analysis aggregates contract transactions by calendar year.
+Positive values generally represent additional funds obligated to the
+contract.
 
-The analysis calculates:
+**Negative obligations**
 
-- Gross positive obligations.
-- Gross negative obligations.
-- Annual net obligation changes.
-- Cumulative obligations.
-- Year-over-year changes.
+Negative values generally represent reductions in previously obligated
+funds, commonly referred to as deobligations.
 
-The purpose is to identify years with significant funding increases or reductions.
+**Net obligation change**
 
-### Historical Transaction Results
+Net obligation change is calculated by combining positive and negative
+transaction amounts.
 
-| Metric | Result |
-|---|---:|
-| Total transactions | 594 |
-| Historical period | 1993–2026 |
-
-The analysis separates positive and negative transactions to distinguish new funding commitments from reductions in previously recorded obligations.
-
-This distinction provides a more complete understanding of historical contract funding activity than examining net changes alone.
-
-### Key Historical Finding
-
-2017 was an exceptional year in the contract's obligation history.
-
-The investigation identified approximately $1.506 billion in negative obligation adjustments during 2017.
-
-This represented approximately 98.07% of the historical gross negative obligations identified in the 594-transaction dataset.
-
-The finding led to a more detailed investigation of monthly activity and individual contract modifications.
-
----
-
-## 9. Detailed 2017 Obligation Analysis
-
-### Annual Results
-
-The 2017 analysis identified a significant net reduction in contract obligations.
-
-| Metric | Result |
-|---|---:|
-| Opening cumulative obligations | $49,079,828,101.11 |
-| Ending cumulative obligations | $48,090,105,709.94 |
-| Gross positive obligations | $516,070,700.39 |
-| Gross negative obligations | -$1,505,793,091.56 |
-| Net annual obligation change | -$989,722,391.17 |
-| Percentage change | -2.02% |
-
-The contract experienced a net obligation reduction of approximately $989.7 million during 2017.
-
-### Monthly Analysis
-
-Monthly transaction aggregation identified May 2017 as the primary driver of the annual reduction.
-
-| Metric | Amount |
-|---|---:|
-| May 2017 net obligation change | -$1,347,149,687.35 |
-| All other months combined | $357,427,296.18 |
-| Full-year net obligation change | -$989,722,391.17 |
-
-**Reconciliation:**
-
-```text
-May 2017 + All Other Months = Full-Year Net Change
-
--$1,347,149,687.35
-+  $357,427,296.18
--------------------
-  -$989,722,391.17
+``` text
+Net Obligation Change =
+Gross Positive Obligations + Gross Negative Obligations
 ```
 
-The monthly results reconcile exactly with the annual analysis.
+For example:
 
-### Monthly Transaction Distribution
+``` text
+Gross Positive Obligations:   $500,000,000
+Gross Negative Obligations:  -$200,000,000
+                             --------------
+Net Obligation Change:        $300,000,000
+```
 
-| Transaction Category | Count |
-|---|---:|
-| Months with positive net changes | 7 |
-| Months with negative net changes | 8 |
+A negative net obligation change indicates that reductions exceeded
+additional obligations during the period.
 
-May was the dominant negative month, while the remaining months collectively offset part of the reduction.
+**Important distinction:** Contract obligations and outlays are
+different financial measures. Obligations represent commitments of
+funds, while outlays represent payments made by the government.
 
----
+------------------------------------------------------------------------
 
-## 10. Investigation of Major May 2017 Transactions
+## 8. Annual Obligation Analysis
 
-The next stage examined the individual transactions responsible for the unusually large May reduction.
+The annual analysis groups historical contract transactions by year.
 
-Three important modifications were identified.
+The analysis examines:
 
-| Action Date | Modification | Action Type | Federal Action Obligation |
-|---|---:|---|---:|
-| 2017-05-05 | 651 | Novation Agreement | $0.00 |
-| 2017-05-30 | 652 | Funding Only Action | -$792,802,785.58 |
-| 2017-05-31 | 653 | Funding Only Action | -$554,346,901.77 |
+-   Annual positive obligations.
+-   Annual negative obligations.
+-   Net annual obligation changes.
+-   Annual cumulative obligation values.
+-   Year-over-year changes.
 
-The two largest negative transactions occurred immediately after the May 5 novation agreement.
+The purpose is to identify years with significant increases or
+reductions in the contract's obligated amount.
 
-Both major transactions included descriptions identifying Lockheed Martin Corporation as the new contracting party.
+### Annual Analysis Questions
 
-### Major Transaction Findings
+-   Which years had the largest positive obligation changes?
+-   Which years had the largest negative obligation changes?
+-   How did annual net obligation changes affect cumulative obligations?
+-   Which years experienced reductions in total obligations?
+-   How did the contract's financial profile change over time?
 
-| Metric | Result |
-|---|---:|
-| First major reduction | -$792,802,785.58 |
-| Second major reduction | -$554,346,901.77 |
-| Combined reduction | -$1,347,149,687.35 |
-| Share of 2017 gross negative obligations | 89.46% |
-| Share of historical gross negative obligations | 87.74% |
+### Related File
 
-These two transactions account for approximately 89.46% of all negative obligations recorded during 2017.
+`src/analysis/lockheed_annual_analysis.py`
 
-They also represent approximately 87.74% of all historical negative obligations in the transaction dataset.
+### Annual Visualization
 
-### After-Novation Transaction Analysis
+![Annual Obligation Analysis](reports/annual_obligation_analysis.png)
 
-The five transactions following the novation-related activity showed:
+------------------------------------------------------------------------
 
-| Metric | Result |
-|---|---:|
-| Transactions examined | 5 |
-| Positive transactions | 0 |
-| Net obligation change | -$1,364,409,755.27 |
+## 9. Monthly Obligation Analysis: 2017
 
-The transaction descriptions and timing suggest a significant relationship between the contractor transition and the subsequent funding adjustments.
+The project includes a more detailed monthly examination of contract
+transactions during 2017.
 
-However, transaction descriptions alone do not establish the complete legal or financial reason for the reductions. The analysis identifies the timing and magnitude of the changes without claiming an independently verified contractual explanation.
+This analysis compares monthly positive and negative obligations and
+calculates the resulting net change.
 
----
+### 2017 Results
 
-## 11. Key Analytical Findings
+  Metric                                          Result
+  -------------------------------- ---------------------
+  Opening Cumulative Obligations     \$49,079,828,101.11
+  Ending Cumulative Obligations      \$48,090,105,709.94
+  Net Obligation Change                -\$989,722,391.17
+  Percentage Change                               -2.02%
+  Gross Positive Obligations            \$516,070,700.39
+  Gross Negative Obligations         -\$1,505,793,091.56
+  Positive Transactions                                7
+  Negative Transactions                                8
 
-The historical investigation produced several important findings.
+The 2017 analysis shows that negative obligations exceeded positive
+obligations, resulting in a net reduction of approximately \$989.7
+million.
 
-### Finding 1: Historical Negative Obligations Were Highly Concentrated
+### Significant Monthly Changes
 
-Approximately 98.07% of the historical gross negative obligations occurred in 2017.
+May 2017 experienced the largest monthly net reduction.
 
-### Finding 2: May 2017 Drove the Annual Reduction
+  Measure                                              Amount
+  ------------------------------------- ---------------------
+  May 2017 Net Change                     -\$1,347,149,687.35
+  Net Change Across Other 2017 Months        \$357,427,296.18
 
-May recorded a net obligation reduction of approximately $1.347 billion.
+Two transactions accounted for most of the gross negative obligations in
+May:
 
-### Finding 3: Two Transactions Accounted for Most Historical Reductions
+  Modification   Date           Federal Action Obligation
+  -------------- ------------ ---------------------------
+  652            2017-05-30             -\$792,802,785.58
+  653            2017-05-31             -\$554,346,901.77
 
-The May 30 and May 31 modifications represented approximately 87.74% of historical gross negative obligations.
+Both transactions included descriptions referencing Lockheed Martin
+Corporation as the new contracting party.
 
-### Finding 4: Positive Obligations Partially Offset the Reductions
+The two transactions accounted for approximately 89.46% of the gross
+negative obligations recorded during 2017.
 
-The remaining months of 2017 generated approximately $357.4 million in net positive obligation changes.
+These findings identify significant transaction-level changes for
+further investigation. They do not, by themselves, establish the
+underlying business or administrative reasons for those changes.
 
-### Finding 5: Annual and Monthly Results Reconciled
+### Monthly Analysis Visualizations
 
-The monthly transaction analysis matched the annual net obligation change exactly, confirming consistency between the two analytical approaches.
+#### Monthly Obligation Changes
 
-### Business Significance
+![2017 Monthly Obligations](reports/2017_monthly_obligations.png)
 
-This investigation demonstrates how transaction-level federal spending data can reveal financial changes that are not immediately apparent from aggregate award amounts.
+#### Cumulative Obligations
 
-By combining annual trends, monthly aggregation, transaction descriptions, and individual modification analysis, the project identifies the specific events responsible for major changes in contract obligations.
+![2017 Cumulative Obligations](reports/2017_cumulative_obligations.png)
 
----
+#### Positive and Negative Obligations
+
+![Monthly Positive and Negative
+Obligations](reports/monthly_positive_negative_2017.png)
+
+### Related File
+
+`src/analysis/lockheed_monthly_analysis.py`
+
+------------------------------------------------------------------------
+
+## 10. Historical Financial Overview and Rankings
+
+The project includes additional historical analysis to compare contract
+obligation activity across the full transaction history.
+
+The historical analysis examines:
+
+-   Gross positive obligations.
+-   Gross negative obligations.
+-   Net obligation changes.
+-   Cumulative obligation trends.
+-   Historical annual rankings.
+-   Recent financial activity.
+
+The ranking analysis identifies the years with the largest values in
+selected financial categories.
+
+This makes it possible to compare years based on different measures
+rather than relying only on net obligation changes.
+
+### Historical Visualizations
+
+#### Historical Financial Overview
+
+![Historical Financial
+Overview](reports/lockheed_historical_financial_overview.png)
+
+#### Recent Financial Overview
+
+![Recent Financial
+Overview](reports/lockheed_recent_financial_overview.png)
+
+#### Historical Cumulative Obligations
+
+![Historical Cumulative
+Obligations](reports/lockheed_cumulative_obligations_history.png)
+
+#### Gross Positive Obligations
+
+![Gross Positive
+Obligations](reports/lockheed_gross_positive_obligations.png)
+
+#### Gross Negative Obligations
+
+![Gross Negative
+Obligations](reports/lockheed_gross_negative_obligations.png)
+
+#### Net Obligation Changes
+
+![Net Obligation Changes](reports/lockheed_net_obligation_changes.png)
+
+### Historical Analysis Files
+
+-   `src/analysis/lockheed_historical_ranking.py`
+-   `src/analysis/lockheed_historical_visualization.py`
+-   `src/analysis/lockheed_annual_obligations_chart.py`
+
+### Historical Analysis Outputs
+
+-   `reports/lockheed_historical_rankings.csv`
+-   `reports/lockheed_annual_obligation_analysis.csv`
+-   `reports/lockheed_monthly_obligation_analysis.csv`
+
+Interactive HTML reports are also available in the `reports/` directory.
+
+------------------------------------------------------------------------
+
+## 11. Interactive Streamlit Dashboard
+
+The project includes an interactive dashboard built with Streamlit and
+Plotly.
+
+**Dashboard file:**
+
+`dashboards/spending_dashboard.py`
+
+The dashboard provides an interface for exploring federal award
+information and analytical results.
+
+### Dashboard Features
+
+-   Federal award summary metrics.
+-   Agency-level spending analysis.
+-   Recipient-level spending analysis.
+-   Interactive charts.
+-   Data filtering.
+-   CSV export functionality.
+-   Data quality checks.
+-   Historical contract analysis.
+-   Explanatory notes about data limitations.
+
+The dashboard is designed to make the results easier to explore without
+requiring users to run individual SQL queries or analysis scripts.
+
+### Dashboard Technologies
+
+-   Streamlit
+-   Plotly
+-   pandas
+-   PostgreSQL
+
+------------------------------------------------------------------------
 
 ## 12. Visualizations and Reports
 
-The project includes static charts and interactive reports designed to communicate spending patterns and historical contract changes.
+The project includes static charts and interactive reports designed to
+communicate spending patterns and historical contract changes.
 
 ### Federal Award Analysis
+
+#### Number of Awards by Agency
+
+![Number of Awards by Agency](reports/number_of_awards_by_agency.png)
 
 #### Total Award Value by Agency
 
@@ -490,39 +626,52 @@ The project includes static charts and interactive reports designed to communica
 
 #### Monthly Positive and Negative Obligations
 
-![Monthly Positive and Negative Obligations](reports/monthly_positive_negative_2017.png)
+![Monthly Positive and Negative
+Obligations](reports/monthly_positive_negative_2017.png)
 
 #### Historical Contract Financial Overview
 
-![Historical Financial Overview](reports/lockheed_historical_financial_overview.png)
+![Historical Financial
+Overview](reports/lockheed_historical_financial_overview.png)
+
+#### Recent Financial Overview
+
+![Recent Financial
+Overview](reports/lockheed_recent_financial_overview.png)
 
 #### Historical Cumulative Obligations
 
-![Historical Cumulative Obligations](reports/lockheed_cumulative_obligations_history.png)
+![Historical Cumulative
+Obligations](reports/lockheed_cumulative_obligations_history.png)
 
 #### Gross Positive Obligations
 
-![Gross Positive Obligations](reports/lockheed_gross_positive_obligations.png)
+![Gross Positive
+Obligations](reports/lockheed_gross_positive_obligations.png)
 
 #### Gross Negative Obligations
 
-![Gross Negative Obligations](reports/lockheed_gross_negative_obligations.png)
+![Gross Negative
+Obligations](reports/lockheed_gross_negative_obligations.png)
 
 #### Net Obligation Changes
 
 ![Net Obligation Changes](reports/lockheed_net_obligation_changes.png)
 
-The repository also includes interactive HTML reports and CSV outputs for additional analysis.
+The repository also includes interactive HTML reports and CSV outputs
+for additional analysis.
 
-These visualizations help communicate financial trends, identify unusual changes, and support further investigation.
+These visualizations help communicate financial trends, identify unusual
+changes, and support further investigation.
 
----
+------------------------------------------------------------------------
 
 ## 13. Project Structure
 
-The repository separates data ingestion, transformation, database operations, analytics, historical analysis, dashboards, reports, and automated tests.
+The following structure reflects the main application, analysis, test,
+dashboard, and report files.
 
-```text
+``` text
 federal_spending_analytics/
 │
 ├── dashboards/
@@ -530,10 +679,13 @@ federal_spending_analytics/
 │
 ├── data/
 │   ├── raw/
-│   │   └── awards_sample.json
+│   │   ├── awards_sample.json
+│   │   └── lockheed_award_transactions.json  # Local source data; not committed
 │   │
 │   └── processed/
-│       └── processed award and analysis CSV files
+│       ├── awards_sample.csv
+│       ├── agency_spending_summary.csv
+│       └── recipient_spending_summary.csv
 │
 ├── reports/
 │   ├── 2017_cumulative_obligations.png
@@ -553,6 +705,7 @@ federal_spending_analytics/
 │   ├── lockheed_net_obligation_changes.png
 │   ├── lockheed_recent_financial_overview.png
 │   ├── monthly_positive_negative_2017.png
+│   ├── number_of_awards_by_agency.png
 │   └── total_award_value_by_agency.png
 │
 ├── scripts/
@@ -580,221 +733,271 @@ federal_spending_analytics/
 │   │   └── usa_spending_api.py
 │   │
 │   ├── run/
-│   │   └── main application entry point
+│   │   └── pipeline.py
 │   │
-│   └── transformation/
-│       ├── clean_awards.py
-│       └── validate_awards.py
+│   ├── transformation/
+│   │   ├── clean_awards.py
+│   │   └── validate_awards.py
+│   │
+│   └── main.py
 │
 ├── tests/
 │   ├── test_clean_awards.py
+│   ├── test_load_awards.py
 │   ├── test_usa_spending_api.py
 │   └── test_validate_awards.py
 │
+├── .env                 # Local environment variables; do not commit
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
-**Repository organization notes:**
+**Note:** The `data/processed/` filenames above describe the expected
+project outputs documented for this workflow. The exact contents of that
+directory may vary depending on which pipeline and analysis steps have
+been run. Python cache folders such as `__pycache__/` are intentionally
+omitted.
 
-- `data/raw/` contains raw input data. The private Lockheed transaction JSON is excluded from GitHub.
-- `data/processed/` contains cleaned and processed datasets.
-- `src/ingestion/` contains API retrieval logic.
-- `src/transformation/` contains cleaning and validation logic.
-- `src/database/` contains database loading and connection testing.
-- `src/analytics/` contains award and agency analysis.
-- `src/analysis/` contains historical Lockheed contract analysis and visualizations.
-- `scripts/diagnostics/` contains supporting diagnostic scripts.
-- `dashboards/` contains the Streamlit dashboard.
-- `reports/` contains exported charts, HTML reports, and CSV analysis results.
-- `tests/` contains automated tests.
-- Generated Python cache files, virtual environments, and local environment files are excluded from version control.
+------------------------------------------------------------------------
 
----
+## 14. Installation and Environment Setup
 
-## 14. Installation and Setup
+### Requirements
 
-### Prerequisites
-
-- Python 3.12 or later.
-- PostgreSQL.
-- Git.
-- Access to the USAspending.gov API.
+-   Python
+-   PostgreSQL
+-   Git
+-   A USAspending.gov API connection
 
 ### Clone the Repository
 
-```bash
+``` bash
 git clone https://github.com/saltanikamal/federal-program-performance-analytics.git
-
 cd federal-program-performance-analytics
 ```
 
 ### Create a Virtual Environment
 
-```bash
+On macOS or Linux:
+
+``` bash
 python3 -m venv venv
-```
-
-### Activate the Environment
-
-macOS/Linux:
-
-```bash
 source venv/bin/activate
 ```
 
 ### Install Dependencies
 
-```bash
+``` bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Configure Environment Variables
+
+Create a local `.env` file for database connection settings and any
+other required configuration.
+
+Do not commit `.env` files, passwords, API credentials, or other secrets
+to GitHub.
+
+The actual environment variable names should match those used by the
+project's configuration and database connection code.
+
 ### Configure PostgreSQL
 
-Create the project database:
+Create or configure the PostgreSQL database used by the application.
 
-```sql
-CREATE DATABASE federal_spending;
+The database used during development is:
+
+`federal_spending`
+
+Make sure PostgreSQL is running and that the database connection
+settings in the local environment match the database configuration.
+
+------------------------------------------------------------------------
+
+## 15. Running the Project
+
+Activate the virtual environment before running project commands:
+
+``` bash
+source venv/bin/activate
 ```
 
-Create a local `.env` file in the project root with the following configuration:
+### Run the Streamlit Dashboard
 
-```text
-DB_NAME=federal_spending
-DB_USER=your_postgres_username
-DB_HOST=localhost
-DB_PORT=5432
-```
+From the project root:
 
-Replace `your_postgres_username` with your local PostgreSQL username.
-
-Do not commit `.env` files, database credentials, or other secrets to GitHub.
-
-### Run the Data Pipeline
-
-Run the project's main application entry point:
-
-```bash
-python -m src.main
-```
-
-### Run the Dashboard
-
-```bash
+``` bash
 streamlit run dashboards/spending_dashboard.py
 ```
 
+Streamlit will display a local address in the terminal. Open that
+address in a browser to use the dashboard.
+
 ### Run Automated Tests
 
-```bash
+From the project root:
+
+``` bash
+pytest
+```
+
+To display more detailed test output:
+
+``` bash
 pytest -v
 ```
 
----
+### Run Analysis Scripts
 
-## 15. Skills Demonstrated
+The historical analysis scripts are located in:
 
-This independent project demonstrates practical application of the following skills.
+`src/analysis/`
 
-### Data Engineering
+The federal award analysis modules are located in:
 
-- REST API integration.
-- Data ingestion.
-- ETL pipeline development.
-- JSON and CSV processing.
-- Data transformation.
-- Database loading.
+`src/analytics/`
 
-### Data Analytics
+Run individual scripts from the project root using the appropriate
+Python command and configuration required by each script.
 
-- Exploratory data analysis.
-- Financial data analysis.
-- Aggregation and grouping.
-- Trend analysis.
-- Transaction-level investigation.
-- Financial reconciliation.
+------------------------------------------------------------------------
 
-### Database Management
+## 16. Automated Testing
 
-- PostgreSQL.
-- Relational database design.
-- SQL queries.
-- Data integrity.
-- Primary keys.
-- Upsert operations.
-- Analytical database views.
+The project includes automated tests using pytest.
 
-### Data Quality
+The test suite covers important components of the federal award data
+workflow.
 
-- Required field validation.
-- Duplicate detection.
-- Missing value checks.
-- Numeric validation.
-- Data consistency checks.
-- Automated testing with pytest.
+### Test Files
 
-### Visualization and Reporting
+  Test File                          Purpose
+  ---------------------------------- --------------------------------------
+  `tests/test_clean_awards.py`       Tests award data cleaning
+  `tests/test_load_awards.py`        Tests database loading functionality
+  `tests/test_usa_spending_api.py`   Tests API ingestion behavior
+  `tests/test_validate_awards.py`    Tests award data validation
 
-- Streamlit.
-- Plotly.
-- Matplotlib.
-- Interactive dashboards.
-- Analytical reporting.
+### Running the Tests
 
-### Software Development
+``` bash
+pytest -v
+```
 
-- Python scripting.
-- Modular project structure.
-- Git and GitHub.
-- Virtual environments.
-- Automated testing.
+The test suite was previously verified with 19 passing tests. Run the
+command above against the current checkout to confirm the latest test
+results.
 
----
+Automated testing helps identify problems in data cleaning, API
+handling, validation, and database loading before relying on the
+pipeline's output.
 
-## 16. Project Limitations
+------------------------------------------------------------------------
 
-Several limitations should be considered when interpreting the results.
+## 17. Data Limitations and Considerations
 
-1. The initial federal award dataset contains only 10 records and should not be interpreted as a comprehensive picture of federal spending.
-2. The Lockheed Martin investigation focuses on one specific contract award.
-3. Negative obligations represent reductions in recorded obligations, not necessarily cash refunds or actual payments.
-4. Contract obligations and federal outlays measure different aspects of government spending.
-5. Transaction descriptions provide context but do not independently establish the complete contractual or legal explanation for every financial adjustment.
-6. Historical results depend on the underlying USAspending.gov data available when the API records were retrieved.
+The results in this repository should be interpreted within the scope of
+the available datasets.
 
-These limitations provide opportunities for future expansion, including larger award datasets, additional agencies, multiple contractors, and more extensive transaction-level comparisons.
+### Federal Award Sample
 
----
+The federal award analysis uses a limited sample of 10 records retrieved
+from USAspending.gov.
 
-## 17. Future Enhancements
+The sample is useful for demonstrating API ingestion, transformation,
+validation, database loading, and analytical techniques. It is not a
+comprehensive representation of all federal awards or total federal
+spending.
 
-Potential improvements include:
+### Historical Contract Transactions
 
-- Expanding the federal award dataset.
-- Analyzing additional federal agencies.
-- Comparing multiple major contractors.
-- Developing additional SQL analytical views.
-- Adding more comprehensive automated data quality tests.
-- Investigating relationships between obligations and outlays.
-- Expanding interactive dashboard functionality.
-- Developing predictive models for federal spending trends.
+The historical contract analysis uses transaction records for one
+selected award.
 
----
+The findings describe the transaction data available for that award and
+should not be generalized to all Department of Energy contracts or all
+federal contracts.
 
-## 18. Conclusion
+### Obligations and Outlays
 
-The Federal Program Performance & Spending Analytics Platform demonstrates an end-to-end approach to working with publicly available federal financial data.
+Obligations and outlays represent different stages of federal spending.
 
-The project combines API integration, Python-based ETL development, data validation, PostgreSQL database management, SQL analytics, and interactive visualization.
+-   Obligations represent commitments of federal funds.
+-   Outlays represent payments made by the government.
 
-The Lockheed Martin contract investigation extends the project beyond basic spending summaries by examining 594 historical transactions, identifying significant deobligations, investigating contractor transition activity, and reconciling annual and monthly financial changes.
+They should not be treated as interchangeable measures.
 
-Together, these components demonstrate the ability to transform raw government data into structured analytical information, investigate financial trends, validate findings, and communicate results through meaningful visualizations and reporting.
+### Transaction Interpretation
 
-**Project Type:** Independent Data Analytics Portfolio Project
+Negative obligations are treated as reductions in previously recorded
+obligations for the purpose of this analysis.
 
-**Focus Areas:** Federal Spending Analytics | Data Engineering | Financial Analysis | SQL | Python | PostgreSQL | Data Visualization
+Transaction descriptions can provide useful context, but the numerical
+analysis alone does not establish the administrative or business reason
+behind a contract modification.
+
+### Data Updates
+
+USAspending.gov data may change as records are updated. Re-running the
+API workflow at a later date may produce different sample records and
+results.
+
+------------------------------------------------------------------------
+
+## 18. Skills Demonstrated
+
+This independent portfolio project demonstrates practical experience
+with:
+
+-   Python programming.
+-   REST API data ingestion.
+-   ETL pipeline development.
+-   Data cleaning and transformation.
+-   Data validation and quality checks.
+-   PostgreSQL database design and querying.
+-   SQL aggregation and analytical queries.
+-   Financial and federal spending analysis.
+-   Time-series and historical transaction analysis.
+-   Positive, negative, and net obligation calculations.
+-   Matplotlib data visualization.
+-   Plotly interactive reporting.
+-   Streamlit dashboard development.
+-   Automated testing with pytest.
+-   Git and GitHub version control.
+
+------------------------------------------------------------------------
+
+## 19. Future Improvements
+
+Potential future enhancements include:
+
+-   Expanding the federal award dataset beyond the initial sample.
+-   Adding pagination and broader API retrieval.
+-   Scheduling regular data ingestion.
+-   Expanding data quality monitoring.
+-   Adding more agency and recipient comparisons.
+-   Improving dashboard filtering and reporting.
+-   Adding additional historical contract comparisons.
+-   Developing more automated integration tests.
+-   Adding documentation for database views and analytical SQL queries.
+
+------------------------------------------------------------------------
+
+## 20. Repository
 
 **GitHub Repository:**
+
 https://github.com/saltanikamal/federal-program-performance-analytics
+
+**Project Title:** Federal Program Performance & Spending Analytics
+Platform
+
+**Project Type:** Independent Data Science and Analytics Portfolio
+Project
+
+**Focus Areas:** Federal Spending Analytics \| Data Engineering \|
+Python \| SQL \| PostgreSQL \| Financial Analysis \| Data Visualization
+\| Dashboard Development
